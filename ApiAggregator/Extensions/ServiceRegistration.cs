@@ -1,5 +1,4 @@
-﻿using aa_api_aggregation.Services;
-using ApiAggregator.Services;
+﻿using ApiAggregator.Services;
 using ApiAggregator.Services.Interfaces;
 
 namespace ApiAggregator.Extensions;
@@ -18,7 +17,5 @@ public static class ServiceRegistration
     public static void AddCommonServices(this IServiceCollection services)
     {
         services.AddControllers();
-        services.AddEndpointsApiExplorer();
-        services.AddSwaggerGen();
     }
 }
