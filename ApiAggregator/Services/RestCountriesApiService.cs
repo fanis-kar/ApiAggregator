@@ -1,5 +1,6 @@
 ﻿using ApiAggregator.Models.ExternalServices;
 using ApiAggregator.Services.Interfaces;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 
@@ -9,15 +10,19 @@ public class RestCountriesApiService : IRestCountriesApiService
 {
     private readonly HttpClient _httpClient;
     private readonly string _apiUrl;
+    private readonly IMemoryCache _cache;
     private readonly ILogger<RestCountriesApiService> _logger;
 
     public RestCountriesApiService(HttpClient httpClient, 
             IOptions<ExternalApiSettings> options,
+            IMemoryCache cache,
             ILogger<RestCountriesApiService> logger)
     {
-        _logger = logger;
         _httpClient = httpClient;
         _httpClient.DefaultRequestHeaders.Add("User-Agent", "ApiAggregation/1.0");
+
+        _cache = cache;
+        _logger = logger;
 
         var settings = options.Value.RestCountriesApi;
         _apiUrl = settings.Url ?? string.Empty;
@@ -26,7 +31,12 @@ public class RestCountriesApiService : IRestCountriesApiService
     public async Task<RestCountriesApiResponse> GetData(string query)
     {
         if (string.IsNullOrEmpty(query)) query = "euro";
+
+        var cacheKey = $"RestCountriesApiCache_{query}";
+        if (_cache.TryGetValue(cacheKey, out RestCountriesApiResponse? restCountriesApiResponse)) return restCountriesApiResponse ?? new();
+
         var requestUrl = $"{_apiUrl}{query}";
+
         try
         {
             var response = await _httpClient.GetAsync(requestUrl);
@@ -36,8 +46,10 @@ public class RestCountriesApiService : IRestCountriesApiService
             var content = await response.Content.ReadAsStringAsync();
 
             var countries = JsonConvert.DeserializeObject<List<Country>>(content);
+            restCountriesApiResponse = new RestCountriesApiResponse { Countries = countries ?? [] };
 
-            return new RestCountriesApiResponse { Countries = countries ?? [] };
+            _cache.Set(cacheKey, restCountriesApiResponse, TimeSpan.FromMinutes(5));
+            return restCountriesApiResponse;
         }
         catch (HttpRequestException ex)
         {

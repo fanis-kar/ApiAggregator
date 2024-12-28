@@ -1,5 +1,6 @@
 ﻿using ApiAggregator.Models.ExternalServices;
 using ApiAggregator.Services.Interfaces;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 
@@ -10,15 +11,19 @@ public class OpenWeatherMapApiService : IOpenWeatherMapApiService
     private readonly HttpClient _httpClient;
     private readonly string _apiUrl;
     private readonly string _apiKey;
+    private readonly IMemoryCache _cache;
     private readonly ILogger<OpenWeatherMapApiService> _logger;
 
     public OpenWeatherMapApiService(HttpClient httpClient, 
             IOptions<ExternalApiSettings> options,
+            IMemoryCache cache,
             ILogger<OpenWeatherMapApiService> logger)
     {
-        _logger = logger;
         _httpClient = httpClient;
         _httpClient.DefaultRequestHeaders.Add("User-Agent", "ApiAggregation/1.0");
+
+        _cache = cache;
+        _logger = logger;
 
         var settings = options.Value.OpenWeatherMapApi;
         _apiUrl = settings.Url ?? string.Empty;
@@ -30,6 +35,9 @@ public class OpenWeatherMapApiService : IOpenWeatherMapApiService
         if (string.IsNullOrEmpty(query)) query = "Galatsi,GR";
         query = Uri.EscapeDataString(query);
 
+        var cacheKey = $"OpenWeatherMapApiCache_{query}";
+        if (_cache.TryGetValue(cacheKey, out OpenWeatherMapApiResponse? openWeatherMapApiResponse)) return openWeatherMapApiResponse ?? new();
+
         var requestUrl = $"{_apiUrl}?q={query}&appid={_apiKey}";
 
         try
@@ -39,7 +47,10 @@ public class OpenWeatherMapApiService : IOpenWeatherMapApiService
             response.EnsureSuccessStatusCode();
 
             var content = await response.Content.ReadAsStringAsync();
-            return JsonConvert.DeserializeObject<OpenWeatherMapApiResponse>(content) ?? new();
+            openWeatherMapApiResponse = JsonConvert.DeserializeObject<OpenWeatherMapApiResponse>(content) ?? new();
+
+            _cache.Set(cacheKey, openWeatherMapApiResponse, TimeSpan.FromMinutes(5));
+            return openWeatherMapApiResponse;
         }
         catch (HttpRequestException ex)
         {

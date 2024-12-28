@@ -17,5 +17,6 @@ public static class ServiceRegistration
     public static void AddCommonServices(this IServiceCollection services)
     {
         services.AddControllers();
+        services.AddMemoryCache();
     }
 }
