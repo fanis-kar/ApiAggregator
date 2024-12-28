@@ -174,6 +174,11 @@ public static class PrepareData
     {
         return new AggregatedApiResponse
         {
+            MainResponse = new MainResponse()
+            {
+                Message = $"3/3 tasks were successfully executed.",
+                SuccessfullyExecutedTasks = 3
+            },
             NewsApiResponse = GetNewsApiData(),
             OpenWeatherMapApiResponse = GetOpenWeatherMapApiData(),
             RestCountriesApiResponse = GetRestCountriesApiData()

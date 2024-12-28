@@ -4,5 +4,5 @@ namespace ApiAggregator.Services.Interfaces;
 
 public interface IApiAggregationService
 {
-    Task<AggregatedApiResponse> GetAggregatedData();
+    Task<AggregatedApiResponse> GetAggregatedData(string query1, string query2, string query3);
 }

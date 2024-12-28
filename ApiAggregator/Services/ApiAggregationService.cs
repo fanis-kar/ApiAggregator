@@ -18,16 +18,23 @@ public class ApiAggregationService : IApiAggregationService
         _restCountriesApiService = restCountriesApiService;
     }
 
-    public async Task<AggregatedApiResponse> GetAggregatedData()
+    public async Task<AggregatedApiResponse> GetAggregatedData(string query1, string query2, string query3)
     {
-        var newsApiTask = _newsApiService.GetData(query: string.Empty);
-        var openWeatherMapApiTask = _openWeatherMapApiService.GetData(query: string.Empty);
-        var restCountriesApiTask = _restCountriesApiService.GetData(query: string.Empty);
+        var newsApiTask = _newsApiService.GetData(query: query1);
+        var openWeatherMapApiTask = _openWeatherMapApiService.GetData(query: query2);
+        var restCountriesApiTask = _restCountriesApiService.GetData(query: query3);
 
         await Task.WhenAll(newsApiTask, openWeatherMapApiTask, restCountriesApiTask);
 
+        var successfullyExecutedTasks = Convert.ToInt16(newsApiTask.IsCompletedSuccessfully) + Convert.ToInt16(openWeatherMapApiTask.IsCompletedSuccessfully) + Convert.ToInt16(restCountriesApiTask.IsCompletedSuccessfully);
+
         var response = new AggregatedApiResponse()
         {
+            MainResponse = new MainResponse()
+            {
+                Message = $"{successfullyExecutedTasks}/3 tasks were successfully executed.",
+                SuccessfullyExecutedTasks = successfullyExecutedTasks
+            },
             NewsApiResponse = newsApiTask.IsCompletedSuccessfully ? newsApiTask.Result : new(),
             OpenWeatherMapApiResponse = openWeatherMapApiTask.IsCompletedSuccessfully ? openWeatherMapApiTask.Result : new(),
             RestCountriesApiResponse = restCountriesApiTask.IsCompletedSuccessfully ? restCountriesApiTask.Result : new(),

@@ -18,9 +18,9 @@ public class AggregatorController : ControllerBase
     }
 
     [HttpGet("Get")]
-    public async Task<IActionResult> GetData()
+    public async Task<IActionResult> GetData([FromQuery] string query1 = "everything", [FromQuery] string query2 = "Galatsi,GR", [FromQuery] string query3 = "euro")
     {
-        var data = await _apiAggregationService.GetAggregatedData();
+        var data = await _apiAggregationService.GetAggregatedData(query1, query2, query3);
         return Ok(data);
     }
 }

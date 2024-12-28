@@ -16,10 +16,10 @@ public class ApiAggregatorServiceTests
     public async Task GetAggregatedData_ShouldReturnNotEmptyData()
     {
         // Arrange
-        _mockApiAggregationApiService.Setup(service => service.GetAggregatedData()).ReturnsAsync(PrepareData.GetAggregatedApiData());
+        _mockApiAggregationApiService.Setup(service => service.GetAggregatedData(string.Empty, string.Empty, string.Empty)).ReturnsAsync(PrepareData.GetAggregatedApiData());
 
         // Act
-        var result = await _mockApiAggregationApiService.Object.GetAggregatedData();
+        var result = await _mockApiAggregationApiService.Object.GetAggregatedData(string.Empty, string.Empty, string.Empty);
 
         // Assert
         Assert.NotNull(result);
@@ -32,10 +32,10 @@ public class ApiAggregatorServiceTests
     public async Task GetAggregatedData_ShouldReturnManyData()
     {
         // Arrange
-        _mockApiAggregationApiService.Setup(service => service.GetAggregatedData()).ReturnsAsync(PrepareData.GetAggregatedApiData());
+        _mockApiAggregationApiService.Setup(service => service.GetAggregatedData(string.Empty, string.Empty, string.Empty)).ReturnsAsync(PrepareData.GetAggregatedApiData());
 
         // Act
-        var result = await _mockApiAggregationApiService.Object.GetAggregatedData();
+        var result = await _mockApiAggregationApiService.Object.GetAggregatedData(string.Empty, string.Empty, string.Empty);
 
         // Assert
         Assert.NotNull(result);
