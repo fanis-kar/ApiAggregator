@@ -3,7 +3,7 @@ using ApiAggregator.Services.Interfaces;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 
-namespace aa_api_aggregation.Services;
+namespace ApiAggregator.Services;
 
 public class OpenWeatherMapApiService : IOpenWeatherMapApiService
 {

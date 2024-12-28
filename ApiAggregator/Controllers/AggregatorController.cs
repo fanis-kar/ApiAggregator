@@ -1,10 +1,13 @@
 ﻿using ApiAggregator.Services.Interfaces;
+using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ApiAggregator.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[ApiVersion("1.0")]
+[Route("api/v{version:apiVersion}/[controller]")]
+
 public class AggregatorController : ControllerBase
 {
     private readonly IApiAggregationService _apiAggregationService;
