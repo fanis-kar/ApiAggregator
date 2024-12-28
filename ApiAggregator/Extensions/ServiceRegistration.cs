@@ -12,6 +12,8 @@ public static class ServiceRegistration
         services.AddHttpClient<IRestCountriesApiService, RestCountriesApiService>();
 
         services.AddScoped<IApiAggregationService, ApiAggregationService>();
+
+        services.AddSingleton<IStatisticsService, StatisticsService>();
     }
 
     public static void AddCommonServices(this IServiceCollection services)
